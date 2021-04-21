@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script type="text/javascript" src="../lib/d3.v5.min.js"></script>
+<style>
+
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+circle {
+  fill: #ccc;
+  stroke: #fff;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+text {
+  fill: #000;
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+</style>
+<html xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"><head>
+
+<title></title></head><body>
+<script>
+
+d3.dsv(",", "board_games.csv", function(d) {
+  return {
+    source: d.source,
+    target: d.target,
+    value: +d.value
+  }
+}).then(function(data) {
+
+  var links = data;
+
+  var nodes = {};
+
+  // compute the distinct nodes from the links.
+  links.forEach(function(link) {
+      link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
+      link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+  });
+
+  var width = 1200,
+      height = 700;
+
+  var force = d3.forceSimulation()
+      .nodes(d3.values(nodes))
+      .force("link", d3.forceLink(links).distance(100))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force("x", d3.forceX())
+      .force("y", d3.forceY())
+      .force("charge", d3.forceManyBody().strength(-250))
+      .alphaTarget(1)
+      .on("tick", tick);
+
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+  
+
+  //define edges
+
+  var path = svg.append("g")
+      .selectAll("path")
+      .data(links)
+      .enter()
+      .append("path")
+      // .style("stroke", "#ccc")
+      .style("stroke", function(d,i){if (d.value==0){return "gray";} 
+        else {return "green";}})  
+      .style("stroke-dasharray",function(d){if (d.value==0){return "0,0";}
+        else {return "5,5";}})
+      .style("stroke-width",function(d){if (d.value==0){return "6";}
+        else {return "1";}})
+      .attr("class", function(d) { return "link " + d.type; });
+
+// Add degree 
+  
+
+
+  // define the nodes
+ 
+  var node = svg.selectAll(".node")
+      .data(force.nodes())
+      .enter().append("g")
+      .attr("class", "node")
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended))
+          .on("dblclick", click);
+
+  var colorScale = d3.scaleLinear()
+      .range(['white', 'green']) // or use hex values
+      .domain([1, 8]);
+  
+  //set up the radius of nodes
+  node.append("circle")
+      .attr("r", function(d) {
+        var degrees = links.filter(function(l) {
+           return l.source.index == d.index || l.target.index == d.index}) ;
+          var minRadius = 5;
+          return minRadius+degrees.length*2;})
+
+      .style("fill", function (d) {   
+        var degrees = links.filter(function(l) {
+           return l.source.index == d.index || l.target.index == d.index}) 
+      return colorScale(degrees.length)});
+
+//nodes movement
+
+  node.append("text")
+      .attr("dx", 20)
+      .attr("dy", -10)
+      .text(function(d){ return d.name})
+      .style("font-weight", 700);
+   //click setting   
+  function click(d) {
+    delete d.fx;
+    delete d.fy;
+    d3.select(this).classed("fixed", false)
+      .select("circle")
+      .style("stroke-dasharray","0,0")
+      .style("stroke","black")
+      .style("stroke-width",1)
+
+  };
+    
+
+
+  // add the curvy lines
+  function tick() {
+      path.attr("d", function(d) {
+          var dx = d.target.x - d.source.x,
+              dy = d.target.y - d.source.y,
+              dr = Math.sqrt(dx * dx + dy * dy);
+          return "M" +
+              d.source.x + "," +
+              d.source.y + "A" +
+              dr + "," + dr + " 0 0,1 " +
+              d.target.x + "," +
+              d.target.y;
+      });
+
+      node.attr("transform", function(d) {
+          return "translate(" + d.x + "," + d.y + ")"; 
+      });
+  };
+
+//movement
+
+  function dragstarted(d) {
+      // d3.select(this).classed("fixed",true)
+      if (!d3.event.active) force.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+  };
+
+  function dragged(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+  };
+
+  function dragended(d) {
+      if (!d3.event.active) force.alphaTarget(0);
+      
+      d3.select(this)
+        .select("circle")
+        .style("stroke-dasharray", "5,5")
+        .style("stroke", "red")
+        .style("stroke-width",10)
+        
+  };
+
+//ADD GT username
+ d3.select("svg")
+    .append("text")
+    .attr("x", width-300)
+    .attr("y", 30)
+    .attr("text-anchor", "middle")
+    .text("ywang3892")
+  
+}).catch(function(error) {
+  console.log(error);
+});
+
+
+
+
+
+
+
+
+
+</script>
+
+<div class='tableauPlaceholder' id='viz1619032801228' style='position: relative'><noscript><a href='#'><img alt='Dashboard 1 (2) ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;pr&#47;projecttableau2_16190317376020&#47;Dashboard12&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> 
+<param name='site_root' value='' /><param name='name' value='projecttableau2_16190317376020&#47;Dashboard12' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;pr&#47;projecttableau2_16190317376020&#47;Dashboard12&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en' /><param name='filter' value='publish=yes' /></object></div>    
+
+ <script type='text/javascript'>                    
+var divElement = document.getElementById('viz1619032801228');                    
+var vizElement = divElement.getElementsByTagName('object')[0];                    
+ if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1500px';vizElement.style.height='1627px';} 
+ else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1500px';vizElement.style.height='1627px';}
+ else { vizElement.style.width='100%';vizElement.style.height='3127px';}                     
+var scriptElement = document.createElement('script');                   
+scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);           
+</script>
+
+
+
+
+
+
+
+</body>
+</html>
