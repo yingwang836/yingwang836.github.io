@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+	<!-- add title -->
+	  <title>choropleth</title>
+  		<meta charset="utf-8">
+  		<script type="text/javascript" src="../lib/d3.v5.min.js"></script>
+ 		 <script type="text/javascript" src="../lib/d3-dsv.min.js"></script>
+ 		 <script type="text/javascript" src="../lib/d3-tip.min.js"></script>
+    <!-- import required libraries here -->
+	
+
+
+
+	<style>
+		/* define CSS rules here */
+	.continent {
+/*    fill: #9E9E9E;*/
+    stroke: #f7f7f7;
+    stroke-width: 1;
+	}
+
+	.d3-tip {
+    line-height: 1;
+    font-weight: bold;
+    font-size: 4px;
+    padding: 6px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+  }
+
+
+	
+    .droplist{
+        left: 100px;
+        top: 5px;
+    }
+
+    #dropdown{
+ 		width:400px;  
+ 		
+   		height: 20px; 
+}
+
+  
+}
+
+</style>
+
+	</style>
+
+
+
+
+</head>
+
+
+
+
+
+
+<body>
+    <!-- Add heading for the visualization -->
+
+
+	
+	<!-- Create dropdown element here. Options should be added after reading in game file, they should not be created here.-->
+	
+
+	<span STYLE="font-size:15px">Select Board Game:</span>
+
+	<select id="dropdown"></select>
+	<!-- append visualization svg to this div-->
+	
+	 <div id="container" class="svg-container"></div>
+
+
+
+    <div id="choropleth" class="svg-container"></div>
+     
+    <script>
+	
+		// enter code to define margin and dimensions for svg
+		var w = 1100;
+    	var h = 500;
+    
+
+		
+		// enter code to create svg
+
+		var svg = d3.select("div#choropleth").append("svg")
+					.attr("preserveAspectRatio", "xMinYMin meet")
+    				.attr("viewBox", "0 0 " + w + " " +(h+50))
+    				.style("background","#c9e8fd");
+    
+
+    	// LOAD word map
+		
+
+		// enter code to create color scale
+		
+		// enter code to define tooltip
+        
+		// enter code to define projection and path required for Choropleth
+
+		var projection = d3.geoEquirectangular().translate([w/2, h*0.6]).center([20,0]);
+		var path = d3.geoPath().projection(projection);
+
+		var worldmap = d3.json("world_countries.json");
+		var rating1=d3.csv("ratings-by-country.csv")
+		// define any other global variables 
+		
+
+        Promise.all([worldmap,rating1]).then(function(values){
+        	//determine the default game "6 nimmt"
+        	var nimmit=values[1].filter(d=>d.Game=="6 nimmt!")
+        	//a map to include name of users and Ratings
+        	var nimmit1=nimmit.map(function(d){return {	
+				Country: d.Country,
+				rating: +d["Average Rating"],
+				user: +d["Number of Users"]}
+        		})
+ 			//a map for findg ratings based on country name
+
+        	var nimmit2=d3.map()
+        	for (var i = 0; i < nimmit1.length; i++){
+  				nimmit2.set(nimmit1[i].Country, +nimmit1[i].rating);}
+  			//a map for findg users based on country name
+  			var nimmit3=d3.map()
+        	for (var i = 0; i < nimmit1.length; i++){
+  				nimmit3.set(nimmit1[i].Country, +nimmit1[i].user);}
+  		
+        	// color scale based on rating 
+			var colorScale = d3.scaleQuantile()
+            					.domain(nimmit1.map(d => d.rating))
+								.range(["#edf8fb","#b2e2e2","#66c2a4","#238b45"])
+
+
+			// tip fro those have a rating and those don.t
+			var tip = d3.tip()
+  				.attr('class', 'd3-tip')
+  				.offset([0, -10])
+  				.html(function(d) {if (d.color==0)
+    				
+    								{return "<p>Country: " + d.properties.name + 
+    									"<p>Game: 6 nimmt! </p>"+
+    						 			"<p>Number of Users: 'N/A'<p>"+
+    						 			"<p>Avg Rating:  'N/A'</p>" }
+
+    						      else {return "<p>Country: " + d.properties.name + 
+    									"<p>Game: 6 nimmt! </p>"+
+    									"<p>Avg Rating: "+ d3.format( "0.2f")(d.color)+"</p>"+
+    						 			"<p>Number of Users: "+ d.user  + "</p>"
+    						 			}
+  
+  									})
+
+  			//define tip
+  		    svg.call(tip);
+
+  		    //generating map
+
+        	svg.selectAll("path")
+        		.data(values[0].features.filter(d => d.id !== "ATA"))
+        		.enter()
+        		.append("path")
+        		.attr("class","continent")     			
+       			.attr("d", path)
+       			 
+					.attr("fill", function (d) {
+ 					 d.user =  nimmit3.get(d.properties.name);
+ 					 d.color = nimmit2.get(d.properties.name)||0; 
+ 						if (d.color==0){ return "gray"}  // gray for those donn,t have rating
+        				else{return colorScale(d.color)}})
+
+					.on('mouseover', tip.show)
+      				.on('mouseout', tip.hide)
+
+      		//legned with rect
+
+			var legend = svg.selectAll('legendEntry')
+    						.data(colorScale.range())
+   							.enter()
+    						
+				legend.append('rect')
+    					.attr("x", w - 120)
+    					.attr("y", function(d, i) {return 50+i * 25;})
+   						.attr("width", 15)
+   						.attr("height", 15)
+   						.style("stroke", "black")
+   						.style("stroke-width", 1)
+   						.style("fill", function(d){return d;}); 
+
+				legend.append('text')
+						.attr("x", w - 100) 
+    					.attr("y", function(d, i) {return 50+i * 25;})
+    					.attr("dy", "1.0em") 
+    					.style("font-size","14px")
+    					.text(function(d,i) {var extent = colorScale.invertExtent(d);
+        										var format = d3.format("0.2f");
+        										return format(+extent[0]) + " - " + format(+extent[1]);});
+    		//title			
+    	    d3.select("svg")
+    				.append("text")
+    				.attr("x", w/2)
+    				.attr("y", 520)
+    				.attr("text-anchor", "middle")
+    				.text("ywang3892")
+
+
+    		//drop down list
+
+        	var dropDown = d3.select("#dropdown")
+
+
+  						
+        	var game_name=d3.nest()
+        					.key(d=>d.Game).sortKeys(d3.decending)				
+							.entries(values[1])
+
+			var name_list=game_name.map(d=>d.key)
+
+			// nested_data_keys.map(function(d){ return +d.key;})
+
+			//option based the map of name list
+
+			var options = dropDown.selectAll("option")
+  									.data(name_list)
+  									.enter()
+  									.append("option")
+  									.text(function (d) { return d; }) // text showed in the menu
+      								.attr("value", function (d) { return d;}) 
+
+      		//dropdown
+
+ 			d3.select("#dropdown").on("change", function(d) {
+        // recover the option that has been chosen
+       			var selectedOption = d3.select(this).property("value")
+       			console.log(selectedOption)
+       			//ready to update
+       			d3.select("svg").remove()
+
+       			//update starts
+       			var svg = d3.select("div#choropleth").append("svg")
+					.attr("preserveAspectRatio", "xMinYMin meet")
+    				.attr("viewBox", "0 0 " + w + " " + (h+50))
+    				.style("background","#c9e8fd")
+
+
+       			var nimmit=values[1].filter(d=>d.Game==selectedOption)
+        		var nimmit1=nimmit.map(function(d){return {
+        		
+				Country: d.Country,
+				rating: +d["Average Rating"],
+				user: +d["Number of Users"]}
+        		})
+            	console.log(nimmit1.map(d=>d.rating))
+        	
+
+        	var nimmit2=d3.map()
+        	for (var i = 0; i < nimmit1.length; i++){
+  				nimmit2.set(nimmit1[i].Country, +nimmit1[i].rating);}
+
+  			var nimmit3=d3.map()
+        	for (var i = 0; i < nimmit1.length; i++){
+  				nimmit3.set(nimmit1[i].Country, +nimmit1[i].user);}
+
+
+			var colorScale = d3.scaleQuantile()
+            					.domain(nimmit1.map(d=>d.rating))
+								.range(["#edf8fb","#b2e2e2","#66c2a4","#238b45"])
+			
+			var tip = d3.tip()
+  				.attr('class', 'd3-tip')
+  				.offset([0, -10])
+  				.html(function(d) {if (d.color==0)
+    				
+    								{return "<p>Country: " + d.properties.name + 
+    									"<p>Game: "+ selectedOption+"</p>"+
+    						 			"<p>Number of Users: 'N/A'<p>"+
+    						 			"<p>Avg Rating:  'N/A'</p>" }
+
+    						      else {return "<p>Country: " + d.properties.name + 
+    									"<p>Game: "+ selectedOption+"</p>"+
+    									"<p>Avg Rating: "+ d3.format( "0.2f")(d.color)+"</p>"+
+    						 			"<p>Number of Users: "+ d.user  + "</p>"
+    						 			}
+  
+  									})
+
+
+  			svg.call(tip);	
+
+        	svg.selectAll("path")
+        		.data(values[0].features.filter(d => d.id !== "ATA"))
+        		.enter()
+        		.append("path")
+        		.attr("class","continent")
+       			
+       			.attr("fill", "grey")
+       			
+       			.attr("d", path)
+       			 
+					.attr("fill", function (d) {
+ 					 d.user =  nimmit3.get(d.properties.name);
+ 					 d.color = nimmit2.get(d.properties.name)||0;
+ 						if (d.color==0){ return "gray"}
+        				else{return colorScale(d.color)}})
+					.on('mouseover', tip.show)
+      				.on('mouseout', tip.hide)
+
+
+			var legend = svg.selectAll('legendEntry')
+    						.data(colorScale.range())
+   							.enter()
+    						
+				legend.append('rect')
+    					.attr("x", w - 120)
+    					.attr("y", function(d, i) {return 50+i * 25;})
+   						.attr("width", 15)
+   						.attr("height", 15)
+   						.style("stroke", "black")
+   						.style("stroke-width", 1)
+   						.style("fill", function(d){return d;}); 
+
+				legend.append('text')
+						.attr("x", w - 100) 
+    					.attr("y", function(d, i) {return 50+i * 25;})
+    					.attr("dy", "1.0em") 
+    					.style("font-size","14px")
+    					.text(function(d,i) {var extent = colorScale.invertExtent(d);
+        										var format = d3.format("0.2f");
+        										return format(+extent[0]) + " - " + format(+extent[1]);});
+
+    		   d3.select("svg")
+    				.append("text")
+    				.attr("x", w/2)
+    				.attr("y", 520)
+    				.attr("text-anchor", "middle")
+    				.text("ywang3892")
+
+
+      })
+  
+ 	
+
+
+        	}
+        	)
+        	;
+
+    </script>
+<div class='tableauPlaceholder' id='viz1619032801228' style='position: relative'><noscript><a href='#'><img alt='Dashboard 1 (2) ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;pr&#47;projecttableau2_16190317376020&#47;Dashboard12&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> 
+<param name='site_root' value='' /><param name='name' value='projecttableau2_16190317376020&#47;Dashboard12' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;pr&#47;projecttableau2_16190317376020&#47;Dashboard12&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en' /><param name='filter' value='publish=yes' /></object></div>    
+
+ <script type='text/javascript'>                    
+var divElement = document.getElementById('viz1619032801228');                    
+ var vizElement = divElement.getElementsByTagName('object')[0];                    
+ if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1500px';vizElement.style.height='1627px';} 
+ else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1500px';vizElement.style.height='1627px';}
+  else { vizElement.style.width='100%';vizElement.style.height='3127px';}                     
+  vr scriptElement = document.createElement('script');                   
+   scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);           
+</script>
+
+</body>
+
+</html>
