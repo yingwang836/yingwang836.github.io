@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>Multi Line Chart</title>
+<script src="../lib/d3.v5.min.js"></script>
+<!-- <link rel="stylesheet" type="text/css" href="styles.css"> -->
+<style>
+.axis line{
+stroke: #706f6f;
+stroke-width: 0.5;
+shape-rendering: crispEdges;
+}
+
+/* axis contour */
+.axis path {
+stroke: #706f6f;
+stroke-width: 0.7;
+shape-rendering: crispEdges;
+}
+
+/* axis text */
+.axis text {
+fill: #2b2929;
+font-family: Georgia;
+font-size: 120%;
+}
+
+/* LINE CHART */
+/*path.line-0 {
+fill: none;
+stroke: #ed3700;
+}
+
+path.line-1 {
+fill: none;
+stroke: #2b2929;
+stroke-dasharray: 2;
+}
+
+path.line-2 {
+fill: none;
+stroke: #9c9c9c;
+stroke-dasharray: 6;
+}
+
+
+path.line-3 {
+fill: none;
+stroke: #ed3700;
+}
+
+path.line-4 {
+fill: none;
+stroke: #2b2929;
+stroke-dasharray: 2;
+}
+
+path.line-5 {
+fill: none;
+stroke: #9c9c9c;
+stroke-dasharray: 6;
+}
+
+path.line-6 {
+fill: none;
+stroke: #ed3700;
+}
+
+path.line-7 {
+fill: none;
+stroke: #2b2929;
+stroke-dasharray: 2;
+}*/
+
+
+
+
+.serie_label {
+fill: #2b2929;
+font-family: Georgia;
+font-size: 80%;
+}
+
+
+</style>
+</head>
+<body>
+<div id="container" class="svg-container"></div>
+<script>
+//------------------------1. PREPARATION------------------------//
+//-----------------------------SVG------------------------------//
+const width = 960;
+const height = 500;
+const margin = 200;
+const padding = 5;
+const adj = 30;
+// we are appending SVG first
+var svg = d3.select("div#container").append("svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "-"
+          + adj*6 + " -"
+          + adj + " "
+          + (width + adj *15) + " "
+          + (height +adj *10))
+
+    .style("padding", padding)
+    .style("margin", margin)
+    .classed("svg-content", true);
+
+//-----------------------------DATA-----------------------------//
+const timeConv = d3.timeParse("%Y-%m-%d");
+const dataset = d3.csv("boardgame_ratings.csv");
+dataset.then(function(data) {
+    var slicestotal = data.columns.slice(1).map(function(id) {
+
+        return {
+            id: id,
+            values: data.map(function(d){
+                return {
+                    date: timeConv(d.date),
+                    measurement: +d[id]
+                   
+
+                };
+            })
+        };
+    });
+
+    console.dir(slicestotal);
+
+
+var slices=slicestotal.filter(function(d,i) { return i%2==0; });
+var slices2=slicestotal.filter(function(d,i) { return i%2!=0; });
+console.dir(slices2);    
+
+//----------------------------SCALES----------------------------//
+const xScale = d3.scaleTime().range([0,width]);
+const yScale = d3.scaleLog().base(10).rangeRound([height, 0]);
+
+xScale.domain(d3.extent(data, function(d){
+    return timeConv(d.date)}));
+
+yScale.domain([(0.000001), d3.max(slices, function(c) {
+    return d3.max(c.values, function(d) {
+        return d.measurement ; });
+        })
+
+    ]);
+
+
+d3.max(slices, function(c) {
+    return d3.max(c.values, function(d) {
+        return d.measurement ; });
+        })
+//-----------------------------AXES-----------------------------//
+const yaxis = d3.axisLeft()
+    .ticks(10)
+    .scale(yScale);
+
+const xaxis = d3.axisBottom()
+    .ticks(d3.timeMonth.every(3))
+    .tickFormat(d3.timeFormat('%b %y'))
+    .scale(xScale);
+
+//----------------------------LINES-----------------------------//
+const line = d3.line()
+    .x(function(d) { return xScale(d.date); })
+    .y(function(d) { return yScale(d.measurement); });
+
+let id = 0;
+const ids = function () {
+    return "line-"+id++;
+}  
+
+
+
+//---------------------------TOOLTIP----------------------------//
+
+
+
+
+
+
+
+
+//-------------------------2. DRAWING---------------------------//
+//-----------------------------AXES-----------------------------//
+svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xaxis);
+
+svg.append("g")
+    .attr("class", "axis")
+    .call(yaxis)
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("dy", ".75em")
+    .attr("y", -10)
+    .style("text-anchor", "end")
+    .text("test");
+
+
+
+//----------------------------LINES-----------------------------//
+
+var sumstat = d3.nest() 
+        .key(d => d.id)
+         .entries(slices);
+
+// console.log(sumstat)
+
+//set color pallete for different vairables
+var res = sumstat.map(function(d){ return d.key })
+
+var color = d3.scaleOrdinal()
+    .domain(res)
+    .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#f781bf','#a65628','#999999'])
+console.log(color)
+// var color = d3.scaleOrdinal(colorArray).domain(mediaName)
+
+//select path - three types: curveBasis,curveStep, curveCardinal
+// d3.select("svg")
+//     .selectAll(".line")
+//     .append("g")
+//     .attr("class", "line")
+//     .data(sumstat)
+//     .enter()
+//     .append("path")
+//     .attr("d", function (d) {
+//         return d3.line()
+//             .x(d => xScale(d.value.date))
+//             .y(d => yScale(d.value.measurement)).curve(d3.curveCardinal)
+//             (d.values)
+//     })
+//     .attr("fill", "none")
+//     .attr("stroke", d => color(d.key))
+//     .attr("stroke-width", 2);
+var slicerank1=slices2.filter(function(d,i){return i ==1})
+console.log(slicerank1)
+console.log(typeof slicerank1);
+
+
+var lines = svg.selectAll("lines")
+    .data(slices)
+    .enter()
+    .append("g");
+
+    lines.append("path")
+    .attr("class", ids)
+    .attr("d", function(d) { return line(d.values); })
+    .attr("fill", "none")
+    .attr("stroke", function(d){ return color(d.id) })
+    .attr("stroke-width", 2);
+
+
+    lines.append("text")
+    .attr("class","serie_label")
+    .datum(function(d) {
+        return {
+            id: d.id,
+            value: d.values[d.values.length - 1]}; })
+    .attr("transform", function(d) {
+            return "translate(" + (xScale(d.value.date) + 10)  
+            + "," + (yScale(d.value.measurement) + 5 )+ ")"; })
+    .attr("x", 5)
+    .text(function(d) { return d.id.slice(0,-6);})
+    .attr("fill", "none")
+    .attr("stroke", function(d){ return color(d.id); })
+
+
+
+
+
+   
+
+    //append circle 
+// d3.select("svg")
+//     .selectAll("circle")
+//     .append("g")
+//     .data(slices)
+//     // .datum(function(d) { return d.values; })
+//     .append("circle")
+//     .attr("r", 6)
+//     .attr("cx", d => xScale(d.date))
+//     .attr("cy", d => yScale(d.measurement))
+//     .style("fill", function(d){ return color(d.id) })
+
+
+
+
+var filteredCircleSet0 = slices
+         .filter(function (d, i) { return i === 0;})
+console.log(filteredCircleSet0[0].values[0].measurement)
+
+// var finalSet0 = {
+//   date: [],
+//   measurement: [],
+//   rank: []
+// }
+
+// for (var i = 0; i < filteredCircleSet0[0].values.length; i++) {
+//   finalSet0.date.push(filteredCircleSet0[0].values[i].date);
+//   finalSet0.measurement.push(filteredCircleSet0[0].values[i].measurement);
+//   finalSet0.rank.push(slicerank1[0].values[i].measurement);
+// }
+
+var rankMap = d3.map();
+
+for(var i = 0; i < slicerank1[0].values.length; i++) {
+    rankMap.set(slicerank1[0].values[i].date, slicerank1[0].values[i].measurement);
+}
+
+// (slicerank1[0].values.map(obj => [slicerank1[0].values.date, slicerank1[0].values.measurement]));
+
+function findRank(d) {
+      console.log(d);
+      console.log(rankMap.get(d));
+      return rankMap.get(d);
+  };
+
+console.log(rankMap);
+
+
+svg.selectAll(".circle1")
+        .data(filteredCircleSet0)
+        .enter().append("g")
+        .attr("class", "circle")
+        .selectAll("circle")
+        .data(function(d) { return d.values.filter(function(d, i){return (i+1) % 3 === 0;})})
+        .enter().append("circle")
+        .attr("fill", function(d){ return color("Catan=count"); })
+        .attr("r", 15)
+        .attr("cx", function(d,i) {  return xScale(d.date); })
+        .attr("cy", function(d,i) { return yScale(d.measurement); })
+
+
+svg.selectAll('.text1')
+   .data(filteredCircleSet0)
+   .enter().append("g")
+   .attr("class", "text")
+   .selectAll('text')
+   .data(function(d) { return d.values.filter(function(d, i){return (i+1) % 3 === 0;})})
+   .enter().append("text")
+   .attr('x',function(d, i) {return (xScale(d.date)-15);})
+   .attr('y',function(d, i) {return yScale(d.measurement)+8;})
+   .text(function(d){return findRank(d.date)});
+
+    // function(d, i) { return d.rank;});
+
+
+
+
+var filteredCircleSet1 = slices
+         .filter(function (d, i) { return i === 1;})
+
+svg.selectAll(".circle2")
+        .data(filteredCircleSet1)
+        .enter().append("g")
+        .attr("class", "circle")
+        .selectAll("circle")
+        .data(function(d) { return d.values.filter(function(d, i){return (i+1) % 3 === 0;})})
+        .enter().append("circle")
+        .attr("fill", function(d){ return color("Dominion=count"); })
+        .attr("r", 15)
+        .attr("cx", function(d,i) {  return xScale(d.date); })
+        .attr("cy", function(d,i) { return yScale(d.measurement); })
+        
+
+//---------------------------POINTS-----------------------------//
+
+
+
+
+
+//---------------------------EVENTS-----------------------------// 
+
+});
+</script>
+</body>

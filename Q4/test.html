@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<head>
+  <title>Games Rating: 2015 - 2019</title>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="../lib/d3.v5.min.js"></script>
+  <script type="text/javascript" src="../lib/d3-dsv.min.js"></script>
+</head>
+
+
+
+
+
+
+
+<body>
+
+<div id="container"></div>
+
+<script>
+
+var margin = {top: 20, right: 80, bottom: 30, left: 50},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var parseDate = d3.time.format("%Y%m%d").parse;
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.category10();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var line = d3.svg.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.temperature); });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+function update(data) {
+    
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+  });
+    
+  // get the min/max dates
+  var extent = d3.extent(data, function(d) { return d.date; }),
+      // hash the existing days for easy lookup
+      dateHash = data.reduce(function(agg, d) {
+          agg[d.date] = true;
+          return agg;
+      }, {}),
+      headers = color.domain();
+    // make even intervals
+    d3.time.days(extent[0], extent[1])
+        // drop the existing ones
+        .filter(function(date) {
+            return !dateHash[date];
+        })
+        // and push them into the array
+        .forEach(function(date) {
+            var emptyRow = { date: date };
+            headers.forEach(function(header) {
+                emptyRow[header] = null;
+            });
+            data.push(emptyRow);
+        });
+    // re-sort the data
+    data.sort(function(a, b) { return d3.ascending(a.date, b.date); });
+
+  var cities = color.domain().map(function(name) {
+    return {
+      name: name,
+      values: data.map(function(d) {
+        return {date: d.date, temperature: +d[name]};
+      })
+    };
+  });
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+  y.domain([
+    d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.temperature; }); }),
+    d3.max(cities, function(c) { return d3.max(c.values, function(v) { return v.temperature; }); })
+  ]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Temperature (ºF)");
+
+  var city = svg.selectAll(".city")
+      .data(cities)
+    .enter().append("g")
+      .attr("class", "city");
+
+  city.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return color(d.name); });
+
+  city.append("text")
+      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name; });
+}
+
+update(d3.tsv.parse(
+"date	New York	San Francisco	Austin\n\
+20111001	63.4	62.7	72.2\n\
+20111002	58.0	59.9	67.7\n\
+20111003	53.3	59.1	69.4\n\
+20111004	55.7	58.8	68.0\n\
+20111005	64.2	58.7	72.4\n\
+20111006	58.8	57.0	77.0\n\
+20111007	57.9	56.7	82.3\n\
+20111009	69.3	56.7	68.8\n\
+20111010	71.2	60.1	68.7\n\
+20111011	68.7	61.1	70.3\n\
+20111012	61.8	61.5	75.3\n\
+20111013	63.0	64.3	76.6\n\
+20111016	61.8	61.6	70.6\n\
+20111017	62.8	61.1	71.1\n\
+20111018	60.8	59.2	70.0\n\
+20111019	62.1	58.9	61.6\n\
+20111021	55.6	56.4	64.3\n\
+20111022	54.4	60.7	72.4\n\
+20111024	54.8	60.9	72.5\n\
+20111025	57.9	56.1	72.7\n\
+20111026	54.6	54.6	73.4\n\
+20111027	54.4	56.1	70.7"
+));
+
+</script>
+
+</body>
+
