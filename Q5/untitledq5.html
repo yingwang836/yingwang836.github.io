@@ -1,0 +1,169 @@
+<html>
+<head>
+    
+        <meta charset="utf-8">
+    <script src="lib/d3.v5.min.js"></script>
+    <script src="lib/topojson.v2.min.js"></script>
+    <script src="lib/d3-scale-chromatic.v1.min.js"></script>
+    <script src="lib/d3-tip.min.js"></script>
+    <style>
+
+            .counties {
+              fill: none;
+            }
+            
+            .states {
+              fill: none;
+              stroke: #fff;
+              stroke-linejoin: round;
+            }
+            
+            </style>
+    <script>
+/*Wait till the body and elements are loading, then apply load function*/
+function load(){
+    
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+//Create a map(id,column) for each data column to display*/
+/*follows the unemployment template found in :
+https://bl.ocks.org/adamjanes/6cf85a4fd79e122695ebde7d41fe327f
+*/
+var Poverty= d3.map();
+var TotalPop= d3.map();
+var IncomePerCap= d3.map();
+var State= d3.map();
+var County= d3.map();
+var path = d3.geoPath();
+
+/*The linear scale for the poverty rate
+domain consider three ranges less than 1%, between 1% and 11% and bigger than 11%
+the rangeRound give the range for the scale output that will be used to set y coordinate for
+building the vertical legend
+*/
+var yLegend = d3.scaleLinear()
+    .domain([1, 11])
+    .rangeRound([58, 300]);
+
+/*The scaleThreshold gives a scale transformation to transform the input range [2..18] 
+into a set of blue gradient colors (9 steps) as requested for the legend
+*/
+var color = d3.scaleThreshold()
+    .domain(d3.range(2, 18))
+    .range(d3.schemeBlues[9]);
+
+    var g = svg.append("g");
+
+/*The title of the d3 map*/
+    svg.append("text")
+        .attr("x",400)             
+        .attr("y",20)
+        .attr("font-family", "sans-serif")
+        .style("font-size", "20px") 
+        .style("font-weight", "bold") 
+        .text("Choropleth Map of County Data");
+
+/*Build the vertical legend: create the rectangles, fill with the appropriate color scale*/
+g.selectAll("rect")
+  .data(color.range().map(function(d) {
+      d = color.invertExtent(d);
+      if (d[0] == null) d[0] = yLegend.domain()[0];
+      if (d[1] == null) d[1] = yLegend.domain()[1];
+      return d;
+    }))
+  .enter().append("rect")
+    .attr("height", 25)
+    .attr("x",-26 )
+    .attr("y", function(d) { 
+      return yLegend(d[0])+12; })
+    .attr("width", 23)
+    .attr("fill", function(d) { return color(d[0]); });
+
+/*legend title*/
+g.append("text")
+    .attr("font-family", "sans-serif")
+    .attr("x", -42)
+    .attr("y", 58)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-size", "11px")
+    .attr("font-weight", "bold")
+    .text("Poverty Rate");
+
+/*Place the legend axis with the values in it*/
+    g.attr("transform", "translate(984, 0)")
+.call(d3.axisRight(yLegend)
+    .tickSize(0)
+    .tickFormat(function(y, i) { 
+      if(i>8) return "";
+      if(i==0) return "≤" + y + "%";
+      if(i==8) return "≥"+ y + "%";      
+      return y + "%"; })
+    .tickValues(color.domain()))
+  .select(".domain")
+    .remove()
+
+var promises = [
+  d3.json("us.json"),
+  d3.csv("county_poverty.csv", function(d) {
+        Poverty.set(d.CensusId,d.Poverty); 
+        State.set(d.CensusId,d.State);
+        County.set(d.CensusId,d.County);
+    }),
+  d3.csv("county_detail.csv", function(d) {
+        TotalPop.set(d.CensusId,d.TotalPop); 
+        IncomePerCap.set(d.CensusId,d.IncomePerCap);
+    })
+]
+
+
+Promise.all(promises).then(ready)
+
+function ready([us]) {
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+    .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("fill", function(d) { 
+        return color(d.Poverty = Poverty.get(d.id)); })
+      .attr("d", path)
+     .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path);
+}
+
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([140, 140])
+  .html(function(d) {
+   
+    return "<div style='opacity:0.8;background-color:#329c68;font-family:sans-serif;padding:8px;;color:white'>"+
+            "State: " + State.get(d.id) + "<br/>"+
+            "County:" + County.get(d.id) +"<br/>"+
+            "Poverty Rate: " + Poverty.get(d.id) + "%<br/>"+
+            "Total Population: " + TotalPop.get(d.id) + "<br/>"+
+            "Income per Capita: " + IncomePerCap.get(d.id) + 
+            "</div>";
+  })
+  g.call(tip);
+
+
+
+}
+
+    </script>
+</head>
+<body style="background-color:#cccccc" onload="load()">
+<svg width="1050" height="600"></svg>
+<br/>
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+</body>
+</html>
