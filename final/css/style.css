@@ -1,0 +1,119 @@
+body{
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 18px;
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+}
+.spaces {
+    padding: 1.5em;
+}
+.space {
+    padding-bottom: 1.5em;
+}
+
+.bold {
+    font-weight: bold;
+} 
+
+.location {
+    font-weight: bold;
+    text-transform: uppercase; 
+    color: #666;
+    letter-spacing: 1px;
+    font-size: 10px;
+    line-height: 13px;
+    margin-bottom: 5px;
+}
+
+.leaflet-bar {
+    right: 0px;
+    float: right;
+}
+.leaflet-left {
+    right: 15px !important;
+}
+
+.tooltip {
+    padding: 1em !important;
+    font-weight: bold;
+    position: relative;
+}
+.tooltip:after {
+    right: 100%;
+    top: 30%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-color: rgba(136, 183, 213, 0);
+    border-right-color: #fff;
+    border-width: 10px;
+    margin-top: -10px;
+}
+.tooltip a {
+    color: #d64a4a;
+}
+.tooltip a:hover, .tooltip a:focus {
+    color: #900900;
+}
+.filter-row {
+    width: 100%;
+    padding: 0 15px;
+    display: block;
+}
+
+.boxes label {
+    left: initial;
+    position: relative; 
+    width: auto; 
+    height: 13px;
+    top: 0;
+    left: 0;
+    margin: 2px 0 0 4px;
+    border-radius: 5px;
+}
+.tooltip-bottom {
+    font-size: 13px;
+    font-weight: normal;
+    position: relative;
+}
+
+.food-image {
+    /*position: absolute;*/
+    display: block;
+    right: 0;
+    top: 0;
+    float: right;
+}
+.food-image img {
+    height: 139px;
+    max-width: 139px;
+    display: block;
+    padding-left: 14px;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+}
+
+.price {
+    color: #666666;
+    font-weight: normal;
+}
+.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+
+
+

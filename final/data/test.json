@@ -1,0 +1,256 @@
+{
+    "businesses":[
+    {
+        "key": "Albany Medical Center Hospital",
+        "values": [
+            {
+                "key": "Abdominal pain",
+                "values": [
+                    {
+                        "key": "0 to 17",
+                        "value": {
+                            "count": 40,
+                            "average": 7253.567701,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "18 to 29",
+                        "value": {
+                            "count": 32,
+                            "average": 8229.218202,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "30 to 49",
+                        "value": {
+                            "count": 92,
+                            "average": 7301.401078,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "50 to 69",
+                        "value": {
+                            "count": 56,
+                            "average": 8004.07677,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "70 or Older",
+                        "value": {
+                            "count": 28,
+                            "average": 8261.116358,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    }
+                ]
+            },
+            {
+                "key": "Asthma",
+                "values": [
+                    {
+                        "key": "0 to 17",
+                        "value": {
+                            "count": 153,
+                            "average": 6840.586472,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "18 to 29",
+                        "value": {
+                            "count": 18,
+                            "average": 8955.871429,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "30 to 49",
+                        "value": {
+                            "count": 42,
+                            "average": 6723.89537,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "50 to 69",
+                        "value": {
+                            "count": 17,
+                            "average": 6415.008039,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "70 or Older",
+                        "value": {
+                            "count": 4,
+                            "average": 7284.410089,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    }
+                ]
+            },
+            {
+                "key": "Bronchiolitis & RSV pneumonia",
+                "values": [
+                    {
+                        "key": "0 to 17",
+                        "value": {
+                            "count": 288,
+                            "average": 6043.888218,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "50 to 69",
+                        "value": {
+                            "count": 1,
+                            "average": 7631.49,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "70 or Older",
+                        "value": {
+                            "count": 4,
+                            "average": 6479.020139,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    }
+                ]
+            },
+            {
+                "key": "Alcoholic liver disease",
+                "values": [
+                    {
+                        "key": "18 to 29",
+                        "value": {
+                            "count": 1,
+                            "average": 6438.808,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "30 to 49",
+                        "value": {
+                            "count": 9,
+                            "average": 7548.73312,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "50 to 69",
+                        "value": {
+                            "count": 27,
+                            "average": 7463.110558,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "70 or Older",
+                        "value": {
+                            "count": 1,
+                            "average": 5348.058,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    }
+                ]
+            },
+            {
+                "key": "Acute myocardial infarction",
+                "values": [
+                    {
+                        "key": "30 to 49",
+                        "value": {
+                            "count": 11,
+                            "average": 14511.46202,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "50 to 69",
+                        "value": {
+                            "count": 72,
+                            "average": 17983.55645,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    },
+                    {
+                        "key": "70 or Older",
+                        "value": {
+                            "count": 81,
+                            "average": 11933.5048,
+                            "beds": 631,
+                            "discharge": 38988,
+                            "charge": 1938837415,
+                            "cost": 607897923
+                        }
+                    }
+                ]
+            }
+        ],
+        "Long": "-73.773969",
+        "Lat": "42.653238"
+    }
+]
+}
