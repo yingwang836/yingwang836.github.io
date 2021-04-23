@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <meta charset="utf-8" />
+    <title>Final Project</title>
+
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" type="text/css" href="css/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+   
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="svg-container">
+      <div id="map"></div>
+      <div id="filterbar" class="spaces">
+        <div class="row">
+          <div class="col">
+            <header>
+              <button type="button" id="reset">RESET</button>
+              <p class="bold location">New York State</p>
+              <h1>Health Suggestions</h1>
+            </header>
+          </div>
+        </div>
+        <div class="row space filter">
+          <div class="col">
+            <h2>Condition</h2>
+            <div id="desc-filter">
+              <div class="row r-list">
+                <div class="col">
+                  <select id="c1"  class="dropdown">
+                    <option class="category" value="empty">Please select a condition...</option>
+                    <option class="category" value="Cellulitis & other skin infections">Cellulitis & other skin infections</option>
+                    <option class="category" value="Cesarean delivery">Cesarean delivery</option>
+                    <option class="category" value="Chronic obstructive pulmonary diseasease">Chronic obstructive pulmonary diseasease</option>
+                    <option class="category" value="Heart failure">Heart failure</option>
+                    <option class="category" value="Knee joint replacement">Knee joint replacement</option>
+                    <option class="category" value="Neonate birthwt >2499g, normal newborn or neonate w other problem">Normal newborn or neonate w other problem</option>
+                    <option class="category" value="Other pneumonia">Other pneumonia</option>
+                    <option class="category" value="Schizophrenia">Schizophrenia</option>
+                    <option class="category" value="Septicemia & disseminated infections">Septicemia & disseminated infections</option>
+                    <option class="category" value="Vaginal delivery">Vaginal delivery</option>
+                   </select>  
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <div class="row space filter">
+          <div class="col">
+            <h2>Age Group</h2>
+            <div id="age-filter">
+              <div class="boxes">
+                <input class="star" type="checkbox" value="0 to 17" id="s5" name="check" />
+                <label for="s5">0-17</label>
+              </div>
+              <div class="boxes">
+                <input class="star" type="checkbox" value="18 to 29" id="s4" name="check" />
+                <label for="s4">18-29</label>
+              </div>
+              <div class="boxes">
+                <input class="star" type="checkbox" value="30 to 49" id="s3" name="check" />
+                <label for="s3">30-49</label>
+              </div>
+              <div class="boxes">
+                <input class="star" type="checkbox" value="50 to 69" id="s2" name="check" />
+                <label for="s2">50-69</label>
+              </div>
+              <div class="boxes">
+                <input class="star" type="checkbox" value="70 or Older" id="s1" name="check" />
+                <label for="s1"> +70</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row space filter">
+          <div class="col">
+            <h2>Gender</h2>
+            <div id="gender-filter">
+              <div class="boxes">
+                <input
+                  class="gender"
+                  type="checkbox"
+                  value="Female"
+                  id="p1"
+                  name="check"
+                />
+                <label for="p1">Female</label>
+              </div>
+              <div class="boxes">
+                <input
+                  class="gender"
+                  type="checkbox"
+                  value="Male"
+                  id="p2"
+                  name="check"
+                />
+                <label for="p2">Male</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIBRARIES -->
+    <script type="text/javascript" src="js/d3.min.js"></script>
+    <script type="text/javascript" src="js/leaflet0.7.7.js"></script>
+
+    <!-- Our JS -->
+    <script type="text/javascript" src="js/map.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+    <script src="https://d3js.org/d3-array.v2.min.js"></script>
+
+    <!-- jQuery and Our JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+  </body>
+</html>
